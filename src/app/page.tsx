@@ -3,6 +3,7 @@ import { Producto } from '@/types';
 import { TENANT_CONFIG } from '@/config/tenant';
 // Slug predeterminado para pruebas (ej. el tenant creado en el backend)
 const TENANT_SLUG = 'mftzone';
+export const dynamic = 'force-dynamic';
 
 async function obtenerProductos(): Promise<Producto[]> {
   try {
@@ -10,13 +11,30 @@ async function obtenerProductos(): Promise<Producto[]> {
       cache: 'no-store',
     });
 
-    if (!res.ok) return [];
+    if (!res.ok) {
+      throw new Error(`Error HTTP: ${res.status}`);
+    }
+
     return await res.json();
   } catch (error) {
     console.error('Error al consultar productos:', error);
-    return [];
+    return []; // Retorna un arreglo vacío para que la página no rompa si el backend tarda en despertar
   }
 }
+
+// async function obtenerProductos(): Promise<Producto[]> {
+//   try {
+//     const res = await fetch(`${TENANT_CONFIG.apiUrl}/tiendas/${TENANT_CONFIG.slug}/productos`, {
+//       cache: 'no-store',
+//     });
+
+//     if (!res.ok) return [];
+//     return await res.json();
+//   } catch (error) {
+//     console.error('Error al consultar productos:', error);
+//     return [];
+//   }
+// }
 
 export default async function HomePage() {
   const productos = await obtenerProductos();
